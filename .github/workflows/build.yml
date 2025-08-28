@@ -269,6 +269,7 @@ jobs:
       - name: Copy Pyodide runtime to repodata for testing
         run: |
           ./tools/copy_pyodide_runtime.sh ./repodata
+
       - name: Store the build summary
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         if: github.event_name == 'pull_request' && env.SUMMARY_CREATED == 'true'
@@ -375,13 +376,39 @@ jobs:
           echo y | python -m pip install -r requirements.txt
 
       - name: Run tests
+        id: test
+        continue-on-error: true
         run: |
+          set -o pipefail
           pytest -v \
             --dist-dir=./dist/ \
             -n $(nproc) \
             --runner=${{ matrix.test-config.runner }} \
             --rt ${{ matrix.test-config.runtime }} \
-            packages
+            packages -ra | tee test_output.log
+
+      - name: Generate test summary
+        if: steps.test.outcome == 'failure' && github.event_name == 'pull_request'
+        env:
+          PR_NUMBER: ${{ github.event.number }}
+        run: |
+          echo "### Test Summary (${{ matrix.test-config.runner }} / ${{ matrix.test-config.runtime }})" > test_summary.md
+          python tools/parse_test_log.py test_output.log >> test_summary.md
+          echo ${PR_NUMBER} > pr_number
+
+      - name: Store test result
+        if: steps.test.outcome == 'failure' && github.event_name == 'pull_request'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: test-result-${{ matrix.test-config.runner }}-${{ matrix.test-config.runtime }}
+          path: |
+            test_summary.md
+            pr_number
+          retention-days: 7
+
+      - name: Check test outcome
+        if: steps.test.outcome == 'failure'
+        run: exit 1
 
   # This job runs the SciPy tests with Node.js based on the
   # above checks; separate from the main test job.
