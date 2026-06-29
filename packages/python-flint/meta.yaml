@@ -1,22 +1,12 @@
+# TODO: drop this package when python-flint releases 0.9.0 and has pyemscripten wheel in PyPI
 package:
   name: python-flint
   version: 0.8.0
   top-level:
     - flint
-requirements:
-  host:
-    - libflint
-    - libgmp
-    - libmpfr
 source:
-  url: https://files.pythonhosted.org/packages/source/p/python_flint/python_flint-0.8.0.tar.gz
-  sha256: 3da125cd780e09510b0fb5f455646013f2b49072ea43eea806f6af77b450fa39
-build:
-  cflags: |
-    -I$(WASM_LIBRARY_DIR)/include
-  ldflags: |
-    -L$(WASM_LIBRARY_DIR)/lib -lflint -lmpfr -lgmp
-  unvendor-tests: false
+  url: https://api.anaconda.org/download/scientific-python-nightly-wheels/python-flint/0.8.0/python_flint-0.8.0-cp314-cp314-pyemscripten_2026_0_wasm32.whl
+  sha256: 8766c6802c1df348fecd3f267703257cdb8f82fccf99465fffb773ede0f7d811
 about:
   home: https://github.com/flintlib/python-flint
   PyPI: https://pypi.org/project/python-flint
