@@ -312,7 +312,7 @@ jobs:
       matrix:
         os: [ubuntu-latest]
         test-config: [
-          {runner: selenium, runtime: chrome, runtime-version: latest },
+          {runner: selenium, runtime: chrome, runtime-version: stable },
           {runner: selenium, runtime: firefox, runtime-version: "136.0" },
           {runner: selenium, runtime: node, runtime-version: "24" },
         ]
@@ -363,6 +363,20 @@ jobs:
           runner: ${{ matrix.test-config.runner }}
           browser: ${{ matrix.test-config.runtime }}
           browser-version: ${{ matrix.test-config.runtime-version }}
+
+      - name: Point system Chrome path at installed Chrome
+        if: matrix.test-config.runtime == 'chrome'
+        run: |
+          sudo ln -sf "$(readlink -f /usr/bin/google-chrome)" /opt/google/chrome/chrome
+
+      - name: Verify Chrome and ChromeDriver versions
+        if: matrix.test-config.runtime == 'chrome'
+        run: |
+          set -euo pipefail
+          chrome_version=$(/opt/google/chrome/chrome --version | awk '{print $NF}')
+          chromedriver_version=$(chromedriver --version | awk '{print $2}')
+          echo "chrome=${chrome_version} chromedriver=${chromedriver_version}"
+          [ "${chrome_version%%.*}" = "${chromedriver_version%%.*}" ]
 
       - name: Download build artifact
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
