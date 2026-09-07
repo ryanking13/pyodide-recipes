@@ -1,12 +1,12 @@
 package:
   name: libxml
-  version: 2.9.10
+  version: 2.14.6
   tag:
     - library
     - static_library
 source:
-  sha256: aafee193ffb8fe0c82d4afef6ef91972cbaf5feea100edc2f262750611b4be1f
-  url: http://xmlsoft.org/sources/libxml2-2.9.10.tar.gz
+  sha256: 7ce458a0affeb83f0b55f1f4f9e0e55735dbfc1a9de124ee86fb4a66b597203a
+  url: https://download.gnome.org/sources/libxml2/2.14/libxml2-2.14.6.tar.xz
 
 requirements:
   host:
@@ -21,12 +21,12 @@ build:
         --disable-dependency-tracking \
         --disable-shared \
         --without-python \
-        --with-iconv="${WASM_LIBRARY_DIR}/lib" \
-        --with-zlib="${WASM_LIBRARY_DIR}/lib" \
+        --with-iconv="${WASM_LIBRARY_DIR}" \
+        --with-zlib="${WASM_LIBRARY_DIR}" \
         --with-lzma="no" \
         --prefix=${WASM_LIBRARY_DIR}
     emmake make -j ${PYODIDE_JOBS:-3}
     emmake make install
 about:
-  home: https://github.com/GNOME/libxml2
+  home: https://gitlab.gnome.org/GNOME/libxml2
   license: MIT
